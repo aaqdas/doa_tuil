@@ -1,0 +1,7 @@
+matlab/dataset_generator/*
+matlab/mrj-doa/*
+matlab/*.asv
+matlab/doa_uca_v2.m
+matlab/myDFT.m
+matlab/numSources.m
+matlab/numSources_from_FFT.m
