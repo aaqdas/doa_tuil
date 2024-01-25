@@ -5,3 +5,5 @@ matlab/doa_uca_v2.m
 matlab/myDFT.m
 matlab/numSources.m
 matlab/numSources_from_FFT.m
+matlab/logs/
+*.csv
