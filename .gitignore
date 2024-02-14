@@ -1,4 +1,6 @@
 matlab/dataset_generator/*
+matlab/doa_uca_sim.prj
+matlab/hdl/
 matlab/mrj-doa/*
 matlab/*.asv
 matlab/doa_uca_v2.m
