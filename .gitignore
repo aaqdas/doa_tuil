@@ -8,4 +8,6 @@ matlab/myDFT.m
 matlab/numSources.m
 matlab/numSources_from_FFT.m
 matlab/logs/
+rtl/sim/work/
 *.csv
+*.rar
