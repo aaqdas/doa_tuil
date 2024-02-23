@@ -2,14 +2,14 @@
 %Owner Ali Aqdas 
 
 clc; clear all; close all;
-
+rng(24);
 % p = 8192*4; % For Verifying Demodulation
 p = 64;
 fs = 10^11; 
 fc = 4*10^9; 
 sFreq = 22*10^6;
 M = 8;
-N = 2; 
+N = 1; 
 sVar = 1;
 offset = 0;
 
@@ -55,21 +55,21 @@ for i = 1:M
     W_bb_q_r(i,:) = fi(real(W_bb(i,:)), 1, word_length, fraction_length);
     W_bb_q_i(i,:) = fi(imag(W_bb(i,:)), 1, word_length, fraction_length);
     
-    W_bb_q(i,:) = W_bb_q_r(i,:) + W_bb_q_i(i,:) *1j;
+    W_bb_q(i,:) = fi(W_bb_q_r(i,:) + W_bb_q_i(i,:) *1j,1,word_length,fraction_length);
 
 end
 % R_org = (W*W')/p;
 
 fileID = fopen('./dataset/baseband_source_real.txt','w');
 for m = 1:length(W_bb_q_r(:,1))
-    for k = 1:length(W_bb_q_r)
+    for k = 1:length(W_bb_q_r(1,:))
         fprintf(fileID,'%s\n', hex(W_bb_q_r(m,k)));
     end
 end
 fclose(fileID);
 fileID = fopen('./dataset/baseband_source_imag.txt','w');
-for m = 1:length(W_bb_q_i(:,1))
-    for k = 1:length(W_bb_q_i)
+for m = 1:length(W_bb_q_r(:,1))
+    for k = 1:length(W_bb_q_i(1,:))
         fprintf(fileID,'%s\n', hex(W_bb_q_i(m,k)));
     end
 end
@@ -94,7 +94,7 @@ fclose(fileID);
 %%
 R = double(R);
 
-
+%%
 
 N_Est = numSources(R);
 
