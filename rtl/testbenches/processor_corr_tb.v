@@ -1,6 +1,10 @@
 `timescale 1ns/100ps
-module processor_corr_tb();
 
+// `define time_lim  64// Total Timestamps
+// `define  anta_lim  8 // Antenna Array Number
+module processor_corr_tb();
+parameter integer time_lim = 64;// Total Timestamps
+parameter integer anta_lim = 8; // Antenna Array Number
 reg i_clk,i_reset;
 reg [11:0] i_x_r;
 reg [11:0] i_x_c;
@@ -10,8 +14,8 @@ wire  i_x_valid,
       i_y_valid;
 wire  i_x_last,
      i_y_last;
-wire [24:0] o_r;
-wire [24:0] o_c;
+wire [30:0] o_r;
+wire [30:0] o_c;
 wire o_valid;
 wire o_ready_x,
      o_ready_y;
@@ -19,8 +23,6 @@ wire o_ready_x,
 reg [1:0] counter_state, counter_n_state;
 parameter [1:0] ready = 0, compute = 1, inc_x = 2, inc_y = 3;
 
-integer time_lim = 64; // Total Timestamps
-integer anta_lim = 8; // Antenna Array Number
 
 reg [6:0] time_idx;
 
@@ -63,17 +65,51 @@ initial begin
     f_imag = $fopen("E:/GitHub/doa_tuil/matlab/dataset/covariance_matrix_imag_hw.txt","w");
 end
 
-always @ (*) begin
-    if (o_valid) begin
-        $fwrite(f_real,"%h\n",o_r);
-        $fwrite(f_imag,"%h\n",o_c);
+
+
+wire latch_end;
+
+d_latch inst_latch_end(.d(1'b1),
+                       .en(x_idx_last && y_idx_last && i_x_last && i_y_last),
+                       .rstn(1'b1),
+                       .q(latch_end));
+
+wire [30:0] o_r_fwrite,o_c_fwrite;
+
+assign o_r_fwrite = {{$clog2(time_lim){o_r[30]}},o_r} >>> $clog2(time_lim);
+assign o_c_fwrite = {{$clog2(time_lim){o_c[30]}},o_c} >>> $clog2(time_lim);
+
+always @ (posedge i_clk, negedge i_reset) begin
+    if (~i_reset) begin
+        $display("Reset...");
     end
-    if (x_idx_last && y_idx_last) begin
+    else if (latch_end && o_valid) begin
+        $fwrite(f_real,"%h\n",o_r_fwrite);
+        $fwrite(f_imag,"%h\n",o_c_fwrite);
         $fclose(f_real);
         $fclose(f_imag);
         $finish();
     end
+    else if (o_valid) begin
+        $fwrite(f_real,"%h\n",o_r_fwrite);
+        $fwrite(f_imag,"%h\n",o_c_fwrite);
+    end
 end
+
+// always @ (posedge i_clk, negedge i_reset) begin
+//     if (~i_reset) begin
+//         $display("Reset...");
+//     end
+//     else if (o_valid) begin
+//         $fwrite(f_real,"%h\n",o_r_fwrite);
+//         $fwrite(f_imag,"%h\n",o_c_fwrite);
+//     end
+//     else if (x_idx_last && y_idx_last && i_x_last && i_y_last) begin
+//         $fclose(f_real);
+//         $fclose(f_imag);
+//         $finish();
+//     end
+// end
 
 
 initial begin 
@@ -99,7 +135,7 @@ always @ (*) begin
     i_x_c = s_imag[time_idx + {time_lim * x_idx}];
 
     i_y_r = s_real[time_idx + {time_lim * y_idx}];
-    i_y_c = s_imag[time_idx + {time_lim * y_idx}];
+    i_y_c = ~s_imag[time_idx + {time_lim * y_idx}] + 1;
 
 end
 

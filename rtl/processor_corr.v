@@ -10,8 +10,8 @@ module processor_corr #(parameter DATA_WIDTH_BITS = 12)
                       input [DATA_WIDTH_BITS-1:0] i_x_c,
                       input [DATA_WIDTH_BITS-1:0] i_y_r,
                       input [DATA_WIDTH_BITS-1:0] i_y_c,
-                      output [DATA_WIDTH_BITS*2:0] o_r,
-                      output [DATA_WIDTH_BITS*2:0] o_c,
+                      output [30:0] o_r,
+                      output [30:0] o_c,
                       output o_ready_x,
                       output o_ready_y,
                       output o_valid
@@ -62,7 +62,7 @@ accum_corr inst_accum_corr_real (
   .i_clk    (i_clk),                  //input clock
   .i_resetn (i_reset),               //input reset negedge
   .i_last   (m_axis_dout_tlast),      //input last element
-  .i_data   (m_axis_dout_tdata[32:0]),                    //input operand
+  .i_data   (m_axis_dout_tdata[31:0]),                    //input operand
   .i_valid(m_axis_dout_tvalid),     //input operand validity
   .o_accum  (o_r),                //output accumulator
   .o_valid  (accum_valid_r)                 //output validity
